@@ -45,9 +45,10 @@ CREATE TABLE `blogsite`.`blog` (
     REFERENCES `blogsite`.`user` (`uid`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
-DROP TRIGGER IF EXISTS `blogsite`.`blog_AFTER_INSERT`;
 
 -- Trigger to increment num_of_blogs in user table on insert into blog
+DROP TRIGGER IF EXISTS `blogsite`.`blog_AFTER_INSERT`;
+
 DELIMITER $$
 USE `blogsite`$$
 CREATE DEFINER = CURRENT_USER TRIGGER `blogsite`.`blog_AFTER_INSERT` AFTER INSERT ON `blog` FOR EACH ROW
@@ -57,9 +58,10 @@ SET num_of_blogs = num_of_blogs + 1
 WHERE `user`.uid = NEW.author_id;
 END$$
 DELIMITER ;
-DROP TRIGGER IF EXISTS `blogsite`.`blog_AFTER_DELETE`;
 
 -- Trigger to decrement num_of_blogs in user table on delete into blog
+DROP TRIGGER IF EXISTS `blogsite`.`blog_AFTER_DELETE`;
+
 DELIMITER $$
 USE `blogsite`$$
 CREATE DEFINER = CURRENT_USER TRIGGER `blogsite`.`blog_AFTER_DELETE` AFTER DELETE ON `blog` FOR EACH ROW
@@ -89,6 +91,8 @@ CREATE TABLE `blogsite`.`bookmark` (
     REFERENCES `blogsite`.`blog` (`blog_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
+
+-- Trigger to increment num_of_bookmarks
 DROP TRIGGER IF EXISTS `blogsite`.`bookmark_AFTER_INSERT`;
 
 DELIMITER $$
@@ -100,6 +104,8 @@ SET num_of_bookmarks = num_of_bookmarks + 1
 WHERE `blog`.blog_id = NEW.blog_id_bk;
 END$$
 DELIMITER ;
+
+-- Trigger to decrement num_of_bookmarks
 DROP TRIGGER IF EXISTS `blogsite`.`bookmark_AFTER_DELETE`;
 
 DELIMITER $$
@@ -111,6 +117,32 @@ SET num_of_bookmarks = num_of_bookmarks - 1
 WHERE `blog`.blog_id = OLD.blog_id_bk;
 END$$
 DELIMITER ;
+
+-- trigger to change date added and date modified
+DROP TRIGGER IF EXISTS `blogsite`.`blog_BEFORE_INSERT`;
+
+DELIMITER $$
+USE `blogsite`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `blogsite`.`blog_BEFORE_INSERT` BEFORE INSERT ON `blog` FOR EACH ROW
+BEGIN
+  IF NEW.date_added IS NULL THEN
+    SET NEW.date_added = NOW();
+  END IF;
+  SET NEW.date_modified = NOW();
+END$$
+DELIMITER ;
+
+-- trigger to change date modified
+DROP TRIGGER IF EXISTS `blogsite`.`blog_BEFORE_UPDATE`;
+
+DELIMITER $$
+USE `blogsite`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `blogsite`.`blog_BEFORE_UPDATE` BEFORE UPDATE ON `blog` FOR EACH ROW
+BEGIN
+  SET NEW.date_modified = NOW();
+END$$
+DELIMITER ;
+
 
 -- category table
 CREATE TABLE `blogsite`.`category` (
@@ -159,6 +191,17 @@ CREATE TABLE `blogsite`.`comment` (
     ON DELETE CASCADE
     ON UPDATE CASCADE);
 
+-- trigger to change date added
+DROP TRIGGER IF EXISTS `blogsite`.`comment_BEFORE_INSERT`;
+
+DELIMITER $$
+USE `blogsite`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `blogsite`.`comment_BEFORE_INSERT` BEFORE INSERT ON `comment` FOR EACH ROW
+BEGIN
+	SET NEW.date_added = NOW();
+END$$
+DELIMITER ;
+
 -- notification table
 CREATE TABLE `blogsite`.`notification` (
   `title` VARCHAR(20) NOT NULL,
@@ -189,6 +232,18 @@ CREATE TABLE `blogsite`.`draft` (
     REFERENCES `blogsite`.`user` (`uid`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
+
+-- trigger to change date added in draft
+DROP TRIGGER IF EXISTS `blogsite`.`draft_BEFORE_INSERT`;
+
+DELIMITER $$
+USE `blogsite`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `blogsite`.`draft_BEFORE_INSERT` BEFORE INSERT ON `draft` FOR EACH ROW
+BEGIN
+	SET NEW.date_added = NOW();
+END$$
+DELIMITER ;
+
 
 -- subscriber table
 CREATE TABLE `blogsite`.`subscriber` (
