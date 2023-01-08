@@ -1,10 +1,7 @@
 from flask import Flask,jsonify,request,render_template
-from flask_cors import CORS, cross_origin
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Configuration settings
 app.config['MYSQL_USER'] = 'ng169'
@@ -17,16 +14,15 @@ mysql = MySQL()
 # Initialize the extension
 mysql.init_app(app)
 
-# @app.route('/api')
-# @cross_origin()
-# def home():
-#     cur = mysql.connection.cursor()
-#     cur.execute("SELECT * FROM blog")
-#     result = cur.fetchall()
-#     return jsonify(blog = result)
+@app.route('/')
+def home():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM blog")
+    result = cur.fetchall()
+    return jsonify(blog = result)
 
 # create,read,update and delete user and user login
-@app.route("/api/user",methods=["GET","POST","PUT","DELETE"])
+@app.route("/user",methods=["GET","POST","PUT","DELETE"])
 def user():
     cur = mysql.connection.cursor()
     if request.method == "POST":
@@ -47,7 +43,7 @@ def user():
         password = request.form.get("password")
         prof_pic = request.form.get("prof_pic")
         user_id = request.args.get("user_id")
-        cur.execute("UPDATE user SET name =%s, ph_num=%d, prof_pic = %s WHERE uid = %s",(name,phnum,prof_pic,user_id))
+        cur.execute("UPDATE user SET name =%s, ph_num=%s, prof_pic = %s WHERE uid = %s",(name,phnum,prof_pic,user_id))
         cur.execute("UPDATE userlogin SET email_id = %s, password = %s WHERE uid = %s",(email,password,user_id))
         mysql.connection.commit()
     elif request.method == "DELETE":
@@ -61,7 +57,7 @@ def user():
     return jsonify(user = user_data,login = login_data)
 
 #create,read,update and delete blog
-@app.route("/api/blog/",methods=["GET","POST","PUT","DELETE"])
+@app.route("/blog/",methods=["GET","POST","PUT","DELETE"])
 def blog():
     cur = mysql.connection.cursor()
     if request.method == "POST":
@@ -87,7 +83,7 @@ def blog():
     return jsonify(blog = blog_data)
 
 #create ,read and update blog categories for a blog
-@app.route("/api/blog/category/",methods=["GET","POST","PUT"])
+@app.route("/blog/category/",methods=["GET","POST","PUT"])
 def blog_category():
     cur = mysql.connection.cursor()
     blog_id = request.args.get("blog_id")
@@ -107,7 +103,7 @@ def blog_category():
     return jsonify(blog_cat = blog_cat_data)
 
 #create,read and delete categories
-@app.route("/api/category/",methods=["GET","POST","DELETE"])
+@app.route("/category/",methods=["GET","POST","DELETE"])
 def category():
     cur = mysql.connection.cursor()
     if request.method == "POST":
@@ -123,7 +119,7 @@ def category():
     return jsonify(category = category_data)  
 
 #create,read and delete bookmarks
-@app.route("/api/blog/bookmark",methods=["GET","POST","DELETE"])
+@app.route("/blog/bookmark",methods=["GET","POST","DELETE"])
 def bookmark():
     cur = mysql.connection.cursor()
     user_id = request.args.get("user_id")
@@ -139,7 +135,7 @@ def bookmark():
     return jsonify(bookmark = bookmark_data)
 
 #create,read,update and delete comment
-@app.route("/api/comment",methods=["GET","POST","PUT","DELETE"])
+@app.route("/comment",methods=["GET","POST","PUT","DELETE"])
 def comment():
     cur = mysql.connection.cursor()
     user_id = request.args.get("user_id")
@@ -159,7 +155,7 @@ def comment():
     return jsonify(comment = comment_data)
 
 #create,read, delete notifications
-@app.route("/api/notification",methods=["GET","POST","DELETE"])
+@app.route("/notification",methods=["GET","POST","DELETE"])
 def notification():
     cur = mysql.connection.cursor()
     user_id = request.args.get("user_id")
@@ -175,7 +171,7 @@ def notification():
     return jsonify(notifications = notification_data) 
 
 #create,read,update and delete draft
-@app.route("/api/draft/")
+@app.route("/draft/")
 def draft():
     cur = mysql.connection.cursor()
     user_id = request.args.get("user_id")
@@ -198,7 +194,7 @@ def draft():
     return jsonify(drafts = draft_data)
 
 #create,read,delete subscribers
-@app.route("/api/subscribe")
+@app.route("/subscribe")
 def subscribe():
     cur = mysql.connection.cursor()
     author_id = request.args.get("author_id")

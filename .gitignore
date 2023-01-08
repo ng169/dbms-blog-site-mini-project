@@ -23,8 +23,3 @@ htmlcov/
 .coverage
 .coverage.*
 *,cover
-
-Include
-Lib
-Scripts
-pyvenv.cfg
