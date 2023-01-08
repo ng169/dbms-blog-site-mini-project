@@ -1,4 +1,4 @@
-from flask import Flask,jsonify,request,render_template
+from flask import Flask, jsonify, request, render_template
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
@@ -14,13 +14,14 @@ mysql = MySQL()
 # Initialize the extension
 mysql.init_app(app)
 
+
 @app.route('/')
 def home():
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM blog")
     blogs = cur.fetchall()
-    return render_template("index.html",all_blogs = blogs)
+    return render_template("index.html", all_blogs=blogs)
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    
+    app.run(debug=True, port=5173)
