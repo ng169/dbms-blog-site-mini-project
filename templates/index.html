@@ -1,28 +1,16 @@
-{% include "header.html" %}
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col">
-        </div>
-        <div class="col-9">
-            <div class="container" style="background-color:white;">
+{% extends 'base.html' %}
 
-                {% for blog in all_blogs %}
-                <div class="card">
-                  <div class="card-body">
-                    <h5 class="card-title">{{blog.title}}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">{{blog.subtitle}}</h6>
-                    <p class="card-text">{{blog.content}}</p>
-                    <a href="#" class="card-link">Card link</a>
-                    <a href="#" class="card-link">Another link</a>
-                  </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="col">
-        </div>
-      </div>
-    </div>
+{% block title %}Blog Site{% endblock %}
 
-
-{% include "footer.html" %}
+{% block content %}
+    {% if user %}
+    <h1>{{user.name}} Logged in</h1>
+    {% else %}
+    <h1>Anonymous</h1>
+    {% endif %}
+    {% for blog in all_blogs %}
+    <h3>{{blog.title}}</h3>
+    <h4>{{blog.subtitle}}</h4>
+    <p>{{blog.content}}</p>
+    {% endfor %}
+{% endblock %}
