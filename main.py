@@ -1,7 +1,8 @@
-from flask import Flask, jsonify, request, render_template, redirect, url_for
+from flask import Flask, jsonify, request, render_template, redirect, url_for, flash
 from flask_mysqldb import MySQL
-from forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, CreateBlogForm
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+from flask_ckeditor import CKEditor
 
 app = Flask(__name__)
 
@@ -20,6 +21,8 @@ app.config['SECRET_KEY'] = 'thisisasecret'
 # configure login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+ckeditor = CKEditor(app)
 
 
 # create a user model
@@ -48,7 +51,7 @@ def home():
     if current_user.is_authenticated:
         cur.execute(f"select * from user where uid = {current_user.id}")
         user = cur.fetchone()
-    return render_template("index.html", all_blogs=blogs, user=user)
+    return render_template("index.html", all_blogs=blogs, user=user, current_user=current_user)
 
 
 # ---------------------------AUTHENTICATION ---------------------------
@@ -65,6 +68,8 @@ def login():
             user_obj = User(user['uid'])
             login_user(user_obj)
             return redirect(url_for("home"))
+        else:
+            flash("Wrong password")
     return render_template("auth/login.html", form=login_form)
 
 
@@ -91,6 +96,57 @@ def logout():
     return redirect(url_for("home"))
 
 
+# ---------------------------BLOG CRUD ---------------------------
+@app.route('/blog/<int:blog_id>', methods=["GET"])
+def blog(blog_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT * FROM blog where blog_id = {blog_id}")
+    blog_post = cur.fetchone()
+    return render_template("blog/display.html", current_user=current_user, blog=blog_post)
+
+
+@app.route('/blog/add', methods=["GET", "POST"])
+@login_required
+def add_blog():
+    create_blog_form = CreateBlogForm()
+    cur = mysql.connection.cursor()
+    if create_blog_form.validate_on_submit():
+        title = request.form.get("title")
+        subtitle = request.form.get("subtitle")
+        content = request.form.get("ckeditor")
+        user_id = current_user.id
+        cur.execute("INSERT INTO blog (title,subtitle,content,author_id) VALUES (%s, %s,%s,%s)",
+                    (title, subtitle, content, user_id))
+        mysql.connection.commit()
+        return redirect(url_for("home"))
+    return render_template("blog/add.html", form=create_blog_form)
+
+
+@app.route('/blog/edit/<int:blog_id>', methods=["GET", "POST"])
+@login_required
+def edit_blog(blog_id):
+    create_blog_form = CreateBlogForm()
+    cur = mysql.connection.cursor()
+    if create_blog_form.validate_on_submit():
+        title = request.form.get("title")
+        subtitle = request.form.get("subtitle")
+        content = request.form.get("ckeditor")
+        cur.execute("UPDATE blog SET title = %s ,subtitle = %s ,content = %s WHERE blog_id = %s ",
+                    (title, subtitle, content, blog_id))
+        mysql.connection.commit()
+        return redirect(url_for("blog", blog_id=blog_id))
+    cur.execute(f"SELECT * FROM blog where blog_id = {blog_id}")
+    blog_post = cur.fetchone()
+    return render_template("blog/edit.html", blog=blog_post, form=create_blog_form)
+
+
+@app.route('/blog/delete/<int:blog_id>', methods=["GET"])
+@login_required
+def delete_blog(blog_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"DELETE FROM blog WHERE blog_id = {blog_id}")
+    mysql.connection.commit()
+    return redirect(url_for("home"))
 
 
 if __name__ == "__main__":

@@ -9,8 +9,12 @@
     <h1>Anonymous</h1>
     {% endif %}
     {% for blog in all_blogs %}
-    <h3>{{blog.title}}</h3>
+    <h3><a href="{{url_for('blog',blog_id=blog.blog_id)}}">{{blog.title}}</a></h3>
     <h4>{{blog.subtitle}}</h4>
-    <p>{{blog.content}}</p>
+    <p>{{blog.content if blog.content|length < 80 else (blog.content[:80] + "...read more")}}</p>
     {% endfor %}
+
+    {% if current_user.is_authenticated %}
+    <button><a href="{{url_for('add_blog')}}">Add post</a></button>
+    {% endif %}
 {% endblock %}

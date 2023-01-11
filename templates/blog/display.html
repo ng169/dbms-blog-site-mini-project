@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}{{blog.title}}{% endblock %}
+
+{% block content %}
+
+    <h3>{{blog.title}}</h3>
+    <h4>{{blog.subtitle}}</h4>
+    <p>{{blog.content}}</p>
+
+    {% if current_user.is_authenticated and current_user.id == blog.author_id %}
+    <button><a href="{{url_for('edit_blog',blog_id = blog.blog_id)}}">Edit blog</a></button>
+    <button><a href="{{url_for('delete_blog',blog_id = blog.blog_id)}}">Delete blog</a></button>
+    {% else %}
+        {% if current_user.is_authenticated %}
+            <button><a href="{{url_for('add_blog')}}">Comment</a></button>
+        {% endif %}
+    {% endif %}
+{% endblock %}

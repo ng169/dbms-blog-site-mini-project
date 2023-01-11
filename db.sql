@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `blogsite`.`userlogin` (
     ON UPDATE CASCADE);
 
 -- Blog Table
-CREATE TABLE `blogsite`.`blog` (
+CREATE TABLE IF NOT EXISTS `blogsite`.`blog` (
   `blog_id` INT NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(45) NOT NULL,
   `subtitle` VARCHAR(45) NULL,

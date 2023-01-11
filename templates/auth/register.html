@@ -4,6 +4,15 @@
 {% block content %}
     <h1>Register</h1>
     <form method="POST" action="/register">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages: %}
+            <p class=flashes>
+                {{ message }}
+            </p>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
         {{ form.csrf_token }}
         {{ form.name.label }} {{ form.name(size=30) }}
         {{ form.phnum.label }} {{ form.phnum(size=30) }}
