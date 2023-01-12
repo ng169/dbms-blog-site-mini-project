@@ -11,7 +11,7 @@
     {% for blog in all_blogs %}
     <h3><a href="{{url_for('blog',blog_id=blog.blog_id)}}">{{blog.title}}</a></h3>
     <h4>{{blog.subtitle}}</h4>
-    <p>{{blog.content if blog.content|length < 80 else (blog.content[:80] + "...read more")}}</p>
+    <p>{{blog.content|safe if blog.content|length < 80 else (blog.content[:80]|safe + "...read more")}}</p>
     {% endfor %}
 
     {% if current_user.is_authenticated %}

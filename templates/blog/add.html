@@ -3,7 +3,7 @@
 
 {% block content %}
     <h1>Add Blog</h1>
-    <form method="POST" action="/blog/add">
+    <form method="POST" action="/blog/add" id="form1" >
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages: %}
@@ -16,6 +16,11 @@
         {{ form.csrf_token }}
         {{ form.title.label }} {{ form.title(size=30) }}
         {{ form.subtitle.label }} {{ form.subtitle(size=30) }}
+        <br>
+        {% for category in categories %}
+        <input type="checkbox" id="category" name="categories" value="{{category.category_id}}">
+        <label for="category">{{category.name}}</label><br>
+        {% endfor %}
         {{ ckeditor.load() }}
         {{ ckeditor.config(name='body') }}
         {{ ckeditor.create() }}

@@ -1,7 +1,7 @@
 import re
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, validators
-from wtforms.validators import DataRequired, Email,URL
+from wtforms.validators import DataRequired, Email
 from flask_ckeditor import CKEditorField
 
 
@@ -23,7 +23,19 @@ class RegisterForm(FlaskForm):
 
 
 class CreateBlogForm(FlaskForm):
-    title = StringField("Blog Post Title")
-    subtitle = StringField("Subtitle")
-    content = CKEditorField("Blog Content")
+    title = StringField("Blog Post Title", validators=[DataRequired()])
+    subtitle = StringField("Subtitle", validators=[DataRequired()])
+    content = CKEditorField("Blog Content", validators=[DataRequired()])
     submit = SubmitField("Submit Blog")
+
+
+class CreateCommentForm(FlaskForm):
+    content = StringField("Comment", validators=[DataRequired()])
+    submit = SubmitField("Submit Comment")
+
+
+class CreateCategoryForm(FlaskForm):
+    name = StringField("Category Name", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+

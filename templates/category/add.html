@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+    {% for category in categories %}
+    <h5>{{category.name}}</h5> <button><a href="{{url_for('delete_category',cat_id = category.category_id)}}">Delete</a></button>
+    {% endfor %}
+
+    <h1>Add Category</h1>
+    <form method="POST" action="/categories">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages: %}
+            <p class=flashes>
+                {{ message }}
+            </p>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {{ form.csrf_token }}
+        {{ form.name.label }} {{ form.name(size=30) }}
+        {{ form.submit }}
+    </form>
+{% endblock %}

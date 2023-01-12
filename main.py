@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request, render_template, redirect, url_for, flash
 from flask_mysqldb import MySQL
-from forms import LoginForm, RegisterForm, CreateBlogForm
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_ckeditor import CKEditor
+from forms import LoginForm, RegisterForm, CreateBlogForm, CreateCommentForm, CreateCategoryForm
+from helper import add_blog_category
 
 app = Flask(__name__)
 
@@ -102,7 +103,14 @@ def blog(blog_id):
     cur = mysql.connection.cursor()
     cur.execute(f"SELECT * FROM blog where blog_id = {blog_id}")
     blog_post = cur.fetchone()
-    return render_template("blog/display.html", current_user=current_user, blog=blog_post)
+    cur.execute(f"SELECT * from comment,user WHERE blog_id_comment = {blog_id} and comment.uid_comment =user.uid ")
+    comment_with_user = cur.fetchall()
+    cur.execute(
+        f"SELECT * FROM blog_category,category WHERE blog_id_cb = {blog_id} "
+        f"and blog_category.cat_id_cb = category.category_id")
+    categories = cur.fetchall()
+    return render_template("blog/display.html", current_user=current_user, blog=blog_post, comments=comment_with_user,
+                           categories=categories)
 
 
 @app.route('/blog/add', methods=["GET", "POST"])
@@ -110,7 +118,10 @@ def blog(blog_id):
 def add_blog():
     create_blog_form = CreateBlogForm()
     cur = mysql.connection.cursor()
-    if create_blog_form.validate_on_submit():
+    cur.execute(
+        "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'blogsite' AND TABLE_NAME = 'blog'")
+    blog_id = cur.fetchone()['AUTO_INCREMENT']
+    if request.method == "POST":
         title = request.form.get("title")
         subtitle = request.form.get("subtitle")
         content = request.form.get("ckeditor")
@@ -118,8 +129,14 @@ def add_blog():
         cur.execute("INSERT INTO blog (title,subtitle,content,author_id) VALUES (%s, %s,%s,%s)",
                     (title, subtitle, content, user_id))
         mysql.connection.commit()
+        add_blog_category(blog_id, cur)
+        mysql.connection.commit()
         return redirect(url_for("home"))
-    return render_template("blog/add.html", form=create_blog_form)
+
+    cur.execute("SELECT * FROM category")
+    category_data = cur.fetchall()
+    return render_template("blog/add.html", form=create_blog_form, blog_id=blog_id,
+                           categories=category_data)
 
 
 @app.route('/blog/edit/<int:blog_id>', methods=["GET", "POST"])
@@ -127,17 +144,28 @@ def add_blog():
 def edit_blog(blog_id):
     create_blog_form = CreateBlogForm()
     cur = mysql.connection.cursor()
-    if create_blog_form.validate_on_submit():
+    if request.method == "POST":
         title = request.form.get("title")
         subtitle = request.form.get("subtitle")
         content = request.form.get("ckeditor")
         cur.execute("UPDATE blog SET title = %s ,subtitle = %s ,content = %s WHERE blog_id = %s ",
                     (title, subtitle, content, blog_id))
         mysql.connection.commit()
+        add_blog_category(blog_id, cur)
+        mysql.connection.commit()
         return redirect(url_for("blog", blog_id=blog_id))
     cur.execute(f"SELECT * FROM blog where blog_id = {blog_id}")
     blog_post = cur.fetchone()
-    return render_template("blog/edit.html", blog=blog_post, form=create_blog_form)
+    cur.execute(
+        f"SELECT category.* "
+        f"FROM category,blog_category "
+        f"WHERE category.category_id = blog_category.cat_id_cb AND blog_id_cb = {blog_id}")
+    present_categories = cur.fetchall()
+    cur.execute(f"select * from category")
+    all_categories = cur.fetchall()
+
+    return render_template("blog/edit.html", blog=blog_post, form=create_blog_form, categories=present_categories,
+                           all_cat=all_categories)
 
 
 @app.route('/blog/delete/<int:blog_id>', methods=["GET"])
@@ -147,6 +175,62 @@ def delete_blog(blog_id):
     cur.execute(f"DELETE FROM blog WHERE blog_id = {blog_id}")
     mysql.connection.commit()
     return redirect(url_for("home"))
+
+
+# ---------------------------COMMENTS CRD ---------------------------
+@app.route('/blog/<int:blog_id>/comment/add', methods=["GET", "POST"])
+def add_comment(blog_id):
+    cur = mysql.connection.cursor()
+    create_comment_form = CreateCommentForm()
+    if create_comment_form.validate_on_submit():
+        content = request.form.get("content")
+        cur.execute(
+            "INSERT INTO `blogsite`.`comment` (`content`, `blog_id_comment`, `uid_comment`) VALUES (%s, %s, %s)",
+            (content, blog_id, current_user.id))
+        mysql.connection.commit()
+        return redirect(url_for("blog", blog_id=blog_id))
+    return render_template("blog/add_comment.html", blog_id=blog_id, form=create_comment_form)
+
+
+@app.route('/blog/<int:blog_id>/comment/<int:comment_id>/delete', methods=["GET", "POST"])
+def delete_comment(blog_id, comment_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"DELETE FROM comment WHERE id= {comment_id}")
+    mysql.connection.commit()
+    return redirect(url_for("blog", blog_id=blog_id))
+
+
+# ---------------------------CATEGORIES CRD ---------------------------
+@app.route('/categories', methods=["GET", "POST"])
+def add_category():
+    cur = mysql.connection.cursor()
+    form = CreateCategoryForm()
+    if current_user.is_authenticated and form.validate_on_submit():
+        name = request.form.get("name")
+        cur.execute(f"INSERT INTO category (name) VALUES ('{name}')", )
+        mysql.connection.commit()
+    cur.execute("SELECT * FROM category")
+    category_data = cur.fetchall()
+    return render_template("category/add.html", form=form, categories=category_data)
+
+
+@app.route('/categories/delete/<int:cat_id>', methods=["GET"])
+def delete_category(cat_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"DELETE FROM category WHERE category_id = {cat_id}")
+    mysql.connection.commit()
+    return redirect(url_for("add_category"))
+
+
+@app.route('/blog/edit/<int:blog_id>/category/delete/<int:cat_id>')
+def delete_blog_category(blog_id, cat_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"DELETE FROM blog_category WHERE cat_id_cb = {cat_id} and blog_id_cb = {blog_id}")
+    mysql.connection.commit()
+    return redirect(url_for("edit_blog",blog_id=blog_id))
+
+
+# ---------------------------
 
 
 if __name__ == "__main__":

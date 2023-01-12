@@ -6,14 +6,31 @@
 
     <h3>{{blog.title}}</h3>
     <h4>{{blog.subtitle}}</h4>
-    <p>{{blog.content}}</p>
+    <h5>Categories</h5>
+    {% for category in categories %}
+    <p> {{category.name}}</p>
+    {% endfor %}
+    <h5>Content</h5>
+    <p>{{blog.content|safe}}</p>
 
     {% if current_user.is_authenticated and current_user.id == blog.author_id %}
     <button><a href="{{url_for('edit_blog',blog_id = blog.blog_id)}}">Edit blog</a></button>
     <button><a href="{{url_for('delete_blog',blog_id = blog.blog_id)}}">Delete blog</a></button>
     {% else %}
         {% if current_user.is_authenticated %}
-            <button><a href="{{url_for('add_blog')}}">Comment</a></button>
+            <button><a href="{{url_for('add_comment',blog_id = blog.blog_id )}}">Add Comment</a></button>
         {% endif %}
     {% endif %}
+    {% if comments %}
+    <h2>Comments</h2>
+    {% for comment in comments %}
+    <h3>{{comment.content}}</h3>
+    <h4>By {{comment.name}}</h4>
+    {% if current_user.is_authenticated and current_user.id == comment.uid %}
+    <a href="{{url_for('delete_comment', comment_id = comment.id,blog_id = blog.blog_id) }}">✘</a>
+    {% endif %}
+    {% endfor %}
+
+    {% endif %}
 {% endblock %}
+

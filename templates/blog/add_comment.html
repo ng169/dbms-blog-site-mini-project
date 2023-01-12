@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Add blog{% endblock %}
+
+{% block content %}
+    <h1>Edit Blog</h1>
+    <form method="POST" action="/blog/{{blog_id}}/comment/add" } }>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages: %}
+            <p class=flashes>
+                {{ message }}
+            </p>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {{ form.csrf_token }}
+        {{ form.content.label }} {{ form.content(size=30) }}
+        {{ form.submit }}
+    </form>
+{% endblock %}
