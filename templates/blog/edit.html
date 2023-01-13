@@ -2,33 +2,35 @@
 {% block title %}Add blog{% endblock %}
 
 {% block content %}
-    <h1>Edit Blog</h1>
-    <form method="POST" action="/blog/edit/{{blog.blog_id}}">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages: %}
-            <p class=flashes>
-                {{ message }}
-            </p>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-        {{ form.csrf_token }}
-        {{ form.title.label }} {{ form.title(size=30,value = blog.title) }}
-        {{ form.subtitle.label }} {{ form.subtitle(size=30,value = blog.subtitle) }}
-        <br>
-        {% for category in categories %}
-        <h5>{{category.name}} <a href="{{url_for('delete_blog_category',blog_id = blog.blog_id,cat_id = category.category_id)}}">Delete</a></h5>
-        {% endfor %}
-        {% for category in all_cat %}
-        {% if category not in categories %}
-        <input type="checkbox" id="category" name="categories" value="{{category.category_id}}">
-        <label for="category">{{category.name}}</label><br>
-        {% endif %}
-        {% endfor %}
-        {{ ckeditor.load() }}
-        {{ ckeditor.config(name='body') }}
-        {{ ckeditor.create(value = blog.content) }}
-        {{ form.submit }}
-    </form>
+<h1>Edit Blog</h1>
+<form action="/blog/edit/{{blog.blog_id}}" method="POST">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages: %}
+    <p class=flashes>
+        {{ message }}
+    </p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {{ form.csrf_token }}
+    {{ form.title.label }} {{ form.title(size=30,value = blog.title) }}
+    {{ form.subtitle.label }} {{ form.subtitle(size=30,value = blog.subtitle) }}
+    <br>
+    {% for category in categories %}
+    <h5>{{category.name}} <a
+            href="{{url_for('delete_blog_category',blog_id = blog.blog_id,cat_id = category.category_id)}}">Delete</a>
+    </h5>
+    {% endfor %}
+    {% for category in all_cat %}
+    {% if category not in categories %}
+    <input id="category" name="categories" type="checkbox" value="{{category.category_id}}">
+    <label for="category">{{category.name}}</label><br>
+    {% endif %}
+    {% endfor %}
+    {{ ckeditor.load() }}
+    {{ ckeditor.config(name='body') }}
+    {{ ckeditor.create(value = blog.content) }}
+    {{ form.submit }}
+</form>
 {% endblock %}

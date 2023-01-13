@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, request, render_template, redirect, url_for, flash
-from flask_mysqldb import MySQL
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_ckeditor import CKEditor
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+from flask_mysqldb import MySQL
+
 from forms import LoginForm, RegisterForm, CreateBlogForm, CreateCommentForm, CreateCategoryForm
-from helper import add_blog_category
+from helper import add_blog_category, send_notification
 
 app = Flask(__name__)
 
@@ -131,6 +132,8 @@ def add_blog():
         mysql.connection.commit()
         add_blog_category(blog_id, cur)
         mysql.connection.commit()
+        send_notification(user_id, title, cur)
+        mysql.connection.commit()
         return redirect(url_for("home"))
 
     cur.execute("SELECT * FROM category")
@@ -227,10 +230,51 @@ def delete_blog_category(blog_id, cat_id):
     cur = mysql.connection.cursor()
     cur.execute(f"DELETE FROM blog_category WHERE cat_id_cb = {cat_id} and blog_id_cb = {blog_id}")
     mysql.connection.commit()
-    return redirect(url_for("edit_blog",blog_id=blog_id))
+    return redirect(url_for("edit_blog", blog_id=blog_id))
 
 
-# ---------------------------
+# -------------------------PROFILE,SUBSCRIBE,NOTIFICATIONS-----------------------
+@app.route('/user/<int:user_id>')
+def profile(user_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT * FROM user inner join userlogin where user.uid = {user_id}")
+    user = cur.fetchone()
+    cur.execute(f"SELECT subscriber_id FROM subscriber where author_id = {user_id}")
+    subs = cur.fetchall()
+    subs_id = [sub['subscriber_id'] for sub in subs]
+    sub_status = -1
+    if not current_user.is_authenticated:
+        sub_status = 0  # No button
+    elif current_user.id == user_id:
+        sub_status = 0
+    else:
+        if current_user.id in subs_id:
+            sub_status = 2  # already subbed
+        else:
+            sub_status = 1
+    return render_template("user/profile.html", user=user, current_user=current_user, sub_status=sub_status)
+
+
+@app.route('/user/<int:author_id>/subscribe/<int:subscriber_id>', methods=["GET"])
+def subscribe(author_id, subscriber_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"INSERT into subscriber values({author_id},{subscriber_id})")
+    mysql.connection.commit()
+    return redirect(url_for("profile", user_id=author_id))
+
+
+@app.route('/user/<int:author_id>/unsubscribe/<int:subscriber_id>', methods=['GET'])
+def unsubscribe(author_id, subscriber_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"DELETE from subscriber where author_id = {author_id} and subscriber_id = {subscriber_id}")
+    mysql.connection.commit()
+    return redirect(url_for("profile", user_id=author_id))
+
+
+@app.route('/notification/delete')
+def del_notification():
+    pass
+# Complete
 
 
 if __name__ == "__main__":

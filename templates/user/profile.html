@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    <h1>User Profile</h1>
+    <div class="container">
+        <h4>{{user.name}}</h4>
+     <h4>{{user.ph_num}}</h4>
+     <h4>{{user.num_of_blogs}}</h4>
+     <h4>{{user.num_of_subs}}</h4>
+     <h4>{{user.email_id}}</h4>
+    </div>
+    {% if sub_status == 1 %}
+    <a href="{{url_for('subscribe',author_id = user.uid,subscriber_id = current_user.id)}}">Subscribe</a>
+    {% endif %}
+    {% if sub_status == 2 %}
+    <a href="{{url_for('unsubscribe',author_id = user.uid,subscriber_id = current_user.id)}}">Unsubscribe</a>
+    {% endif %}
+
+{% endblock %}
