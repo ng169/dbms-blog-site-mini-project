@@ -110,8 +110,16 @@ def blog(blog_id):
         f"SELECT * FROM blog_category,category WHERE blog_id_cb = {blog_id} "
         f"and blog_category.cat_id_cb = category.category_id")
     categories = cur.fetchall()
+    bkm_status = 0
+    if current_user.is_authenticated:
+        cur.execute(f"SELECT * FROM bookmark where uid_bk={current_user.id} and blog_id_bk={blog_id}")
+        bkms = cur.fetchone()
+        if bkms is not None:
+            bkm_status = 1
+        else:
+            bkm_status = 2
     return render_template("blog/display.html", current_user=current_user, blog=blog_post, comments=comment_with_user,
-                           categories=categories)
+                           categories=categories, bkm_status=bkm_status)
 
 
 @app.route('/blog/add', methods=["GET", "POST"])
@@ -233,7 +241,7 @@ def delete_blog_category(blog_id, cat_id):
     return redirect(url_for("edit_blog", blog_id=blog_id))
 
 
-# -------------------------PROFILE,SUBSCRIBE,NOTIFICATIONS-----------------------
+# -------------------------PROFILE,SUBSCRIBE-----------------------
 @app.route('/user/<int:user_id>')
 def profile(user_id):
     cur = mysql.connection.cursor()
@@ -243,10 +251,8 @@ def profile(user_id):
     subs = cur.fetchall()
     subs_id = [sub['subscriber_id'] for sub in subs]
     sub_status = -1
-    if not current_user.is_authenticated:
+    if not current_user.is_authenticated or current_user.id == user_id:
         sub_status = 0  # No button
-    elif current_user.id == user_id:
-        sub_status = 0
     else:
         if current_user.id in subs_id:
             sub_status = 2  # already subbed
@@ -271,10 +277,52 @@ def unsubscribe(author_id, subscriber_id):
     return redirect(url_for("profile", user_id=author_id))
 
 
-@app.route('/notification/delete')
-def del_notification():
-    pass
-# Complete
+# -------------------------NOTIFICATIONS-------------------------
+
+@app.route('/notification')
+@login_required
+def notification():
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT * from notification where uid_notif = {current_user.id}")
+    notifications = cur.fetchall()
+    return render_template("user/notification.html", notifications=notifications)
+
+
+@app.route('/notification/delete/<int:notif_id>')
+@login_required
+def del_notification(notif_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"DELETE from notification where notif_id = {notif_id}")
+    mysql.connection.commit()
+    return redirect(url_for('notification'))
+
+
+# -------------------------BOOKMARKS-------------------------
+@app.route('/bookmarks')
+@login_required
+def bookmarks():
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT * from blog,bookmark where uid_bk = {current_user.id} and blog_id = blog_id_bk")
+    bkms = cur.fetchall()
+    return render_template("user/bookmark.html", bkms=bkms)
+
+
+@app.route('/bookmarks/add/<int:blog_id>')
+@login_required
+def add_bookmarks(blog_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"INSERT into bookmark values({current_user.id},{blog_id})")
+    mysql.connection.commit()
+    return redirect(url_for('blog', blog_id=blog_id))
+
+
+@app.route('/bookmarks/delete/<int:blog_id>')
+@login_required
+def del_bookmarks(blog_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"DELETE from bookmark where blog_id_bk = {blog_id} and uid_bk = {current_user.id}")
+    mysql.connection.commit()
+    return redirect(url_for('blog', blog_id=blog_id))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Notification{% endblock %}
+
+{% block content %}
+<h1>Notifications</h1>
+
+{% if notifications|length == 0 %}
+<p>No new notifications</p>
+{% else %}
+{% for notif in notifications %}
+<p>{{notif.title}}</p>
+<p>{{notif.description}}</p>
+<a href="{{url_for('del_notification',notif_id=notif.notif_id)}}">Delete</a>
+{% endfor %}
+{% endif %}
+{% endblock %}

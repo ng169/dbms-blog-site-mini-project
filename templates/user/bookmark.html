@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Bookmarks{% endblock %}
+
+{% block content %}
+<h1>Bookmarks</h1>
+
+{% if bkms|length == 0 %}
+<p>No Bookmarks</p>
+{% else %}
+{% for bkm in bkms %}
+<h3><a href="{{url_for('blog',blog_id=bkm.blog_id)}}">{{bkm.title}}</a></h3>
+<h4>{{bkm.subtitle}}</h4>
+<p>{{bkm.content|safe if bkm.content|length < 80 else (bkm.content[:80]|safe + "...read more")}}</p>
+{% endfor %}
+{% endif %}
+{% endblock %}

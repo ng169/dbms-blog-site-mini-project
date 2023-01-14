@@ -4,6 +4,14 @@
 
 {% block content %}
 
+{% if bkm_status == 1 %}
+<a href="{{url_for('del_bookmarks',blog_id=blog.blog_id)}}">Remove bookmark</a>
+{% endif %}
+
+{% if bkm_status == 2 %}
+<a href="{{url_for('add_bookmarks',blog_id = blog.blog_id)}}">Add bookmamrk</a>
+{% endif %}
+
 <h3>{{blog.title}}</h3>
 <h4>{{blog.subtitle}}</h4>
 <h5>Categories</h5>
