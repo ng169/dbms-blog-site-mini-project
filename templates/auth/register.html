@@ -2,23 +2,59 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-    <h1>Register</h1>
-    <form method="POST" action="/register" enctype="multipart/form-data">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages: %}
-            <p class=flashes>
-                {{ message }}
-            </p>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-        {{ form.csrf_token }}
-        {{ form.name.label }} {{ form.name(size=30) }}
-        {{ form.phnum.label }} {{ form.phnum(size=30) }}
-        <input type="file" name="file" id="file">
-        {{ form.email.label }} {{ form.email(size=30) }}
-        {{ form.password.label }} {{ form.password(size=30) }}
-        {{ form.submit }}
-    </form>
+<section class="mt-5 pt-5">
+    <div class="container-fluid h-custom">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-9 col-lg-6 col-xl-5">
+                <img src="{{url_for('static',filename='assets/class-topics-and-materials.png')}}"
+                     class="img-fluid" alt="Register">
+            </div>
+            <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                <form method="POST" action="/register" enctype="multipart/form-data" novalidate>
+                    {{ form.csrf_token }}
+                    <div class="form-outline mb-3">
+                        {{ form.name.label(class="form-label") }} {{ form.name(size=30,class="form-control
+                        form-control-lg") }}
+                    </div>
+                    <div class="form-outline mb-3">
+                        {{ form.phnum.label(class="form-label") }} {{ form.phnum(size=30,class="form-control
+                        form-control-lg") }}
+                    </div>
+                    <div class="form-outline mb-3">
+                        {{ form.photo.label(class="form-label") }} {{ form.photo(class="form-control form-control-lg")
+                        }}
+                    </div>
+                    <!-- Email input -->
+                    <div class="form-outline mb-3">
+                        {{ form.email.label(class="form-label") }} {{ form.email(size=30,class="form-control
+                        form-control-lg") }}
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="form-outline mb-3">
+                        {{ form.password.label(class="form-label") }} {{ form.password(size=30,class="form-control
+                        form-control-lg") }}
+                    </div>
+                    <div class="divider d-flex align-items-center my-4">
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                        {% for message in messages: %}
+                        <p class=flashes>
+                            {{ message }}
+                        </p>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        {{ form.submit(type="submit",class="btn btn-dark btn-lg",style="padding-left: 2.5rem;
+                        padding-right: 2.5rem;") }}
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>
 {% endblock %}

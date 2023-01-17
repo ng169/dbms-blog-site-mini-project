@@ -97,7 +97,7 @@ def register():
         email = request.form.get("email")
         phnum = request.form.get("phnum")
         password = request.form.get("password")
-        file = request.files["file"]
+        file = request.files["photo"]
         prof_pic_name = "default_user.png"
         if file:
             prof_pic_name = file.filename
