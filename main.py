@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_ckeditor import CKEditor
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
@@ -6,6 +8,7 @@ from flask_mysqldb import MySQL
 from forms import LoginForm, RegisterForm, CreateBlogForm, CreateCommentForm, CreateCategoryForm
 from helper import add_blog_category, send_notification
 
+from dateutil import parser
 app = Flask(__name__)
 
 # Configuration settings
@@ -26,6 +29,8 @@ login_manager.init_app(app)
 
 ckeditor = CKEditor(app)
 
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
 
 # create a user model
 class User(UserMixin):
@@ -44,10 +49,18 @@ def load_user(user_id):
     return None
 
 
+@app.template_filter('strftime')
+def _jinja2_filter_datetime(date, fmt=None):
+    date = parser.parse(date)
+    native = date.replace(tzinfo=None)
+    format = '%b %d, %Y'
+    return native.strftime(format)
+
+
 @app.route('/')
 def home():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM blog")
+    cur.execute("SELECT * FROM blog,user WHERE blog.author_id = user.uid")
     blogs = cur.fetchall()
     user = None
     if current_user.is_authenticated:
@@ -84,7 +97,12 @@ def register():
         email = request.form.get("email")
         phnum = request.form.get("phnum")
         password = request.form.get("password")
-        cur.execute("INSERT INTO user (name, ph_num) VALUES (%s, %s)", (name, phnum))
+        file = request.files["file"]
+        prof_pic_name = "default_user.png"
+        if file:
+            prof_pic_name = file.filename
+            file.save(os.path.join(app.root_path, 'static', 'images', file.filename))
+        cur.execute("INSERT INTO user (name, ph_num, prof_pic) VALUES (%s, %s, %s)", (name, phnum, prof_pic_name))
         cur.execute("INSERT INTO userlogin (email_id, password) VALUES (%s, %s)", (email, password))
         mysql.connection.commit()
         return redirect(url_for("login"))

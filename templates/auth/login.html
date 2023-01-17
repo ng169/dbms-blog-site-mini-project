@@ -2,20 +2,51 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-    <h1>Login</h1>
-    <form method="POST" action="/login" novalidate>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages: %}
-            <p class=flashes>
-                {{ message }}
-            </p>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-        {{ form.csrf_token }}
-        {{ form.email.label }} {{ form.email(size=30) }}
-        {{ form.password.label }} {{ form.password(size=30) }}
-        {{ form.submit }}
-    </form>
+<section class="mt-5">
+    <div class="container-fluid h-custom">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-9 col-lg-6 col-xl-5">
+                <img src="{{url_for('static',filename='assets/class-topics-and-materials.png')}}"
+                     class="img-fluid" alt="Sample image">
+            </div>
+            <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                <form method="POST" action="/login" novalidate>
+                    {{ form.csrf_token }}
+
+                    <!-- Email input -->
+                    <div class="form-outline mb-4">
+                        {{ form.email.label(class="form-label") }} {{ form.email(size=30,class="form-control
+                        form-control-lg") }}
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="form-outline mb-3">
+                        {{ form.password.label(class="form-label") }} {{ form.password(size=30,class="form-control
+                        form-control-lg") }}
+                    </div>
+                    <div class="divider d-flex align-items-center my-4">
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                        {% for message in messages: %}
+                        <p class=flashes>
+                            {{ message }}
+                        </p>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        {{ form.submit(type="submit",class="btn btn-dark btn-lg",style="padding-left: 2.5rem;
+                        padding-right: 2.5rem;") }}
+                        <p class="small fw-bold mt-3 pt-3">Don't have an account? <a href="#!"
+                                                                                          class="link-danger">Register</a>
+                        </p>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>
 {% endblock %}

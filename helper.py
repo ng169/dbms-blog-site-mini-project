@@ -19,3 +19,7 @@ def send_notification(author_id, blog_title, cur):
     for sub_id in subs_id:
         cur.execute(f"INSERT into notification VALUES ('{notif_title}','{notif_description}',{sub_id})")
 
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

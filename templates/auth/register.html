@@ -3,7 +3,7 @@
 
 {% block content %}
     <h1>Register</h1>
-    <form method="POST" action="/register">
+    <form method="POST" action="/register" enctype="multipart/form-data">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages: %}
@@ -16,6 +16,7 @@
         {{ form.csrf_token }}
         {{ form.name.label }} {{ form.name(size=30) }}
         {{ form.phnum.label }} {{ form.phnum(size=30) }}
+        <input type="file" name="file" id="file">
         {{ form.email.label }} {{ form.email(size=30) }}
         {{ form.password.label }} {{ form.password(size=30) }}
         {{ form.submit }}
