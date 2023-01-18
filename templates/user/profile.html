@@ -12,6 +12,7 @@
             <h4>{{user.num_of_blogs}}</h4>
             <h4>{{user.num_of_subs}}</h4>
             <h4>{{user.email_id}}</h4>
+            <img src="{{url_for('static',filename='images/%s' % user.prof_pic)}}" class="user">
         </div>
 
     </div>
