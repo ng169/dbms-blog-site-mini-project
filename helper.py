@@ -17,7 +17,7 @@ def send_notification(author_id, blog_title, cur):
     notif_title = f"NEW BLOG FROM {author_name}"
     notif_description = f"{author_name} has posted a blog on {blog_title}"
     for sub_id in subs_id:
-        cur.execute(f"INSERT into notification VALUES ('{notif_title}','{notif_description}',{sub_id})")
+        cur.execute(f"INSERT into notification(title,description,uid_notif) VALUES ('{notif_title}','{notif_description}',{sub_id})")
 
 
 def allowed_file(filename):

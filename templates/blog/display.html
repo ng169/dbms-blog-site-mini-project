@@ -4,41 +4,107 @@
 
 {% block content %}
 
-{% if bkm_status == 1 %}
-<a href="{{url_for('del_bookmarks',blog_id=blog.blog_id)}}">Remove bookmark</a>
-{% endif %}
 
-{% if bkm_status == 2 %}
-<a href="{{url_for('add_bookmarks',blog_id = blog.blog_id)}}">Add bookmamrk</a>
-{% endif %}
+<div class="container mt-5 shadow min-vh-100 p-4">
+    <div class="row">
+        <div class="col-12 pt-2">
+            <h1>{{blog.title}}</h1>
+            <h3>{{blog.subtitle}}</h3>
+            <hr>
+        </div>
+        <div class="col-8">
+            <div class="mt-2 mb-3">
+                <p>Posted by
+                    <a class="link-dark" href="{{ url_for('profile',user_id=blog.uid) }}">
+                        <em>{{blog.name}}</em></a>
+                </p>
+                <p>Date added: {{blog.date_added|strftime}}</p>
+                <p>Date modified: {{blog.date_modified|strftime}} </p>
+                <p>Number of bookmarks: {{blog.num_of_bookmarks}}</p>
+                <h5>Categories</h5>
+                <ul class="list-group list-group-horizontal">
+                    {% for category in categories %}
+                    <li class="list-group-item"> {{category.name}}</li>
+                    {% endfor %}
+                </ul>
+                <div class="mt-4">
+                    {% if bkm_status == 1 %}
+                    <p class="display-7">
+                        <a href="{{url_for('del_bookmarks',blog_id=blog.blog_id)}}">
+                            Remove bookmark <i class="fa-sharp fa-solid fa-bookmark"></i>
+                        </a>
+                    </p>
+                    {% endif %}
 
-<h3>{{blog.title}}</h3>
-<h4>{{blog.subtitle}}</h4>
-<h5>Categories</h5>
-{% for category in categories %}
-<p> {{category.name}}</p>
-{% endfor %}
-<h5>Content</h5>
-<p>{{blog.content|safe}}</p>
+                    {% if bkm_status == 2 %}
+                    <p class="display-7">
+                        <a href="{{url_for('add_bookmarks',blog_id = blog.blog_id)}}">
+                            Add bookmark <i class="fa-regular fa-bookmark"></i>
+                        </a>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-4 d-flex flex-column justify-content-center">
+            {% if current_user.is_authenticated and current_user.id == blog.author_id %}
+            <a href="{{url_for('edit_blog',blog_id = blog.blog_id)}}">
+                <button class="btn btn-outline-primary mb-3">
 
-{% if current_user.is_authenticated and current_user.id == blog.author_id %}
-<button><a href="{{url_for('edit_blog',blog_id = blog.blog_id)}}">Edit blog</a></button>
-<button><a href="{{url_for('delete_blog',blog_id = blog.blog_id)}}">Delete blog</a></button>
-{% else %}
-{% if current_user.is_authenticated %}
-<button><a href="{{url_for('add_comment',blog_id = blog.blog_id )}}">Add Comment</a></button>
-{% endif %}
-{% endif %}
-{% if comments %}
-<h2>Comments</h2>
-{% for comment in comments %}
-<h3>{{comment.content}}</h3>
-<h4>By {{comment.name}}</h4>
-{% if current_user.is_authenticated and current_user.id == comment.uid %}
-<a href="{{url_for('delete_comment', comment_id = comment.id,blog_id = blog.blog_id) }}">✘</a>
-{% endif %}
-{% endfor %}
+                    Edit blog <i class="fa-solid fa-pen"></i>
+                </button>
+            </a>
+            <a href="{{url_for('delete_blog',blog_id = blog.blog_id)}}">
+                <button class="btn btn-outline-danger mt-3">
+                    Delete blog <i class="fa-solid fa-trash"></i>
+                </button>
+            </a>
+            {% else %}
+            {% if current_user.is_authenticated %}
+            <a href="{{url_for('add_comment',blog_id = blog.blog_id )}}">
+                <button class="btn btn-outline-primary mb-3">
+                    Add Comment <i class="fa-regular fa-plus"></i>
+                </button>
+            </a>
+            <a href="{{url_for('home')}}">
+                <button class="btn btn-outline-primary mb-3">
+                    Back to home <i class="fa-sharp fa-solid fa-house"></i></i>
+                </button>
+            </a>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-8 border-end border-2">
+            {{blog.content|safe}}
+        </div>
+        <div class="col-4">
 
-{% endif %}
+            <h4>Comments</h4>
+            {% if comments %}
+            {% for comment in comments %}
+            <div class="mt-2 ms-2">
+                {% if current_user.is_authenticated and current_user.id == comment.uid %}
+                <p>{{comment.content}}<br>By {{comment.name}} (You)</p>
+                <a href="{{url_for('delete_comment', comment_id = comment.id,blog_id = blog.blog_id) }}"> Delete ✘</a>
+                {% else %}
+                <p>{{comment.content}}<br>By {{comment.name}} </p>
+                {% endif %}
+
+            </div>
+            <hr>
+            {% endfor %}
+            {% else %}
+            <div class="mt-2 ms-2">
+                No comments added.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
 {% endblock %}
 

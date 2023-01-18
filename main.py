@@ -120,7 +120,7 @@ def logout():
 @app.route('/blog/<int:blog_id>', methods=["GET"])
 def blog(blog_id):
     cur = mysql.connection.cursor()
-    cur.execute(f"SELECT * FROM blog where blog_id = {blog_id}")
+    cur.execute(f"SELECT * FROM blog,user where blog_id = {blog_id} and blog.author_id=user.uid")
     blog_post = cur.fetchone()
     cur.execute(f"SELECT * from comment,user WHERE blog_id_comment = {blog_id} and comment.uid_comment =user.uid ")
     comment_with_user = cur.fetchall()
@@ -276,6 +276,7 @@ def profile(user_id):
             sub_status = 2  # already subbed
         else:
             sub_status = 1
+    print(sub_status)
     return render_template("user/profile.html", user=user, current_user=current_user, sub_status=sub_status)
 
 
