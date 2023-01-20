@@ -5,23 +5,93 @@
 
 <div class="container mt-4 shadow min-vh-100">
     <div class="row">
-        <div class="col-7 p-5">
-            <h2><u>{{user.name}}'s Profile</u></h2>
-            <h4>Name: {{user.name}}</h4>
-            <h4>Phone number: {{user.ph_num}}</h4>
-            <h4>{{user.num_of_blogs}}</h4>
-            <h4>{{user.num_of_subs}}</h4>
-            <h4>{{user.email_id}}</h4>
+        <div class="col-5 p-5 text-center">
             <img src="{{url_for('static',filename='images/%s' % user.prof_pic)}}" class="user">
+            <h2 class="mt-3 mb-3">{{user.name}}'s Profile</h2>
+            {% if sub_status == 1 %}
+            <a href="{{url_for('subscribe',author_id = user.uid,subscriber_id = current_user.id)}}">
+                <button type="button" class="btn btn-danger">Subscribe</button>
+            </a>
+            {% endif %}
+            {% if sub_status == 2 %}
+            <a href="{{url_for('unsubscribe',author_id = user.uid,subscriber_id = current_user.id)}}">
+                <button type="button" class="btn btn-outline-danger">Unsubscribe</button>
+            </a>
+            {% endif %}
         </div>
+        <div class="col-7 pt-5">
+            <h5>NAME: {{user.name}}</h5>
+            <h5>PHONE: {{user.ph_num}}</h5>
+            <h5>EMAIl: {{user.email_id}}</h5>
 
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="card border-info mb-3" style="max-width: 18rem;">
+                        <div class="card-header bg-transparent fw-bold">Number of Blogs</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{user.num_of_blogs}}</h5>
+                        </div>
+                    </div>
+                    <div class="card border-info mb-3 ms-3" style="max-width: 18rem;">
+                        <div class="card-header bg-transparent fw-bold">Subscriber count</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{user.num_of_subs}}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    {% if sub_status == 1 %}
-    <a href="{{url_for('subscribe',author_id = user.uid,subscriber_id = current_user.id)}}">Subscribe</a>
-    {% endif %}
-    {% if sub_status == 2 %}
-    <a href="{{url_for('unsubscribe',author_id = user.uid,subscriber_id = current_user.id)}}">Unsubscribe</a>
-    {% endif %}
+    <hr>
+    <div class="row">
+        <div class="col-md-10 col-lg-8 mt-5 ms-3">
+            <h2 class="mb-3">{{user.name}}'s Recent Blogs</h2>
+            {% for blog in all_blogs %}
+            <div class="post-preview">
+                <a href="{{url_for('blog',blog_id=blog.blog_id)}}" class="link-dark">
+                    <h2 class="post-title">{{blog.title}}</h2>
+                </a>
+                <h5 class="post-subtitle">{{blog.subtitle}}</h5>
+                <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=blog.author_id)}}"
+                                                       class="link-dark"><em>{{user.name}}</em></a>
+                    on {{blog.date_added|strftime}}</p>
+            </div>
+            <hr>
+            {% endfor %}
+        </div>
+        <div class="col mt-5">
+            <h2 class="mb-3">Subscriptions</h2>
+            {% if subscribed|length == 0 %}
+            Not subscribed to any user
+            {% else %}
+
+            <div class="container">
+                <div class="row border-bottom">
+                    <div class="col-2">
+                        <h6>#</h6>
+                    </div>
+                    <div class="col">
+                        <h6>User Name</h6>
+                    </div>
+                </div>
+                {% for s in subscribed %}
+                <div class="row">
+                    <div class="col-2">
+                        <h6>{{loop.index}}</h6>
+                    </div>
+                    <div class="col">
+                        <h6><a class="link-dark" href="{{url_for('profile',user_id=s.uid)}}">{{s.name}}</a></h6>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+
 </div>
 
 

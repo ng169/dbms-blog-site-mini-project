@@ -2,28 +2,40 @@
 {% block title %}Add blog{% endblock %}
 
 {% block content %}
-    <h1>Add Blog</h1>
-    <form method="POST" action="/blog/add" id="form1" >
+<div class="container shadow p-4 mt-3">
+    <h1 class="text-center">Add Blog</h1>
+    <hr>
+    <form method="POST" action="/blog/add" id="form1">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages: %}
-            <p class=flashes>
-                {{ message }}
-            </p>
+        <p class=flashes>
+            {{ message }}
+        </p>
         {% endfor %}
         {% endif %}
         {% endwith %}
         {{ form.csrf_token }}
-        {{ form.title.label }} {{ form.title(size=30) }}
-        {{ form.subtitle.label }} {{ form.subtitle(size=30) }}
+        {{ form.title.label(class="form-label") }} {{ form.title(size=30,class="form-control w-50") }}
+        {{ form.subtitle.label(class="form-label") }} {{ form.subtitle(size=30,class="form-control w-50") }}
         <br>
+        <h5>Choose Category tags:</h5>
         {% for category in categories %}
-        <input type="checkbox" id="category" name="categories" value="{{category.category_id}}">
-        <label for="category">{{category.name}}</label><br>
+        <div class="btn-group" role="group" aria-label="categories checkbox toggle button group">
+            <input type="checkbox" class="btn-check" id="category{{category.category_id}}" name="categories"
+                   autocomplete="off" value="{{category.category_id}}">
+            <label class="btn btn-outline-primary" for="category{{category.category_id}}">{{category.name}}</label>
+        </div>
         {% endfor %}
-        {{ ckeditor.load() }}
-        {{ ckeditor.config(name='body') }}
-        {{ ckeditor.create() }}
-        {{ form.submit }}
+        <div class="mt-5">
+            {{ ckeditor.load() }}
+            {{ ckeditor.config(name='body') }}
+            {{ ckeditor.create() }}
+        </div>
+
+        {{ form.submit(type="submit",class="btn btn-primary mt-3 mb-3") }}
     </form>
+</div>
+
+
 {% endblock %}

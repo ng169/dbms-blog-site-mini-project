@@ -2,23 +2,46 @@
 {% block title %}Categories{% endblock %}
 
 {% block content %}
-    {% for category in categories %}
-    <h5>{{category.name}}</h5> <button><a href="{{url_for('delete_category',cat_id = category.category_id)}}">Delete</a></button>
-    {% endfor %}
+<div class="container shadow mt-5">
+    <table class="table table-hover text-center">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Category Name</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for category in categories %}
+        <tr>
+            <td>{{loop.index}}</td>
+            <td>{{category.name}}</td>
+            <td>
+                <a href="{{url_for('delete_category',cat_id = category.category_id)}}">&#10006;</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-    <h1>Add Category</h1>
+<div class="container mt-5">
+    <h2 class="mb-3">Add Category</h2>
     <form method="POST" action="/categories">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages: %}
-            <p class=flashes>
-                {{ message }}
-            </p>
+        <p class=flashes>
+            {{ message }}
+        </p>
         {% endfor %}
         {% endif %}
         {% endwith %}
         {{ form.csrf_token }}
-        {{ form.name.label }} {{ form.name(size=30) }}
-        {{ form.submit }}
+        {{ form.name.label(class="form-label") }} {{ form.name(size=30,class="form-control w-50") }}
+        {{ form.submit(type="submit",class="btn btn-dark mt-4") }}
     </form>
+</div>
+
+
 {% endblock %}

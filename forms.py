@@ -1,7 +1,7 @@
 import re
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, validators
-from flask_wtf.file import FileField, FileRequired
+from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, Email
 from flask_ckeditor import CKEditorField
 
@@ -20,7 +20,7 @@ class RegisterForm(FlaskForm):
                                                     validators.Length(min=10, max=15),
                                                     validators.Regexp(regex=r'^\+?\d+$',
                                                                       message="Phone number must contain only digits")])
-    photo = FileField("Profile Photo",validators=[FileRequired()])
+    photo = FileField("Profile Photo")
     submit = SubmitField("SIGN ME UP")
 
 

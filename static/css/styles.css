@@ -75,6 +75,9 @@ select {
   }
 }
 
+a {
+    text-decoration:none;
+}
 /* Profile phot */
 .user {
   display: inline-block;

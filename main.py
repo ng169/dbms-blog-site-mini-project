@@ -1,5 +1,6 @@
 import os
 
+from dateutil import parser
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_ckeditor import CKEditor
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
@@ -8,7 +9,6 @@ from flask_mysqldb import MySQL
 from forms import LoginForm, RegisterForm, CreateBlogForm, CreateCommentForm, CreateCategoryForm
 from helper import add_blog_category, send_notification
 
-from dateutil import parser
 app = Flask(__name__)
 
 # Configuration settings
@@ -98,7 +98,7 @@ def register():
         phnum = request.form.get("phnum")
         password = request.form.get("password")
         file = request.files["photo"]
-        prof_pic_name = "default_user.png"
+        prof_pic_name = "default_user.jpg"
         if file:
             prof_pic_name = file.filename
             file.save(os.path.join(app.root_path, 'static', 'images', file.filename))
@@ -263,7 +263,7 @@ def delete_blog_category(blog_id, cat_id):
 @app.route('/user/<int:user_id>')
 def profile(user_id):
     cur = mysql.connection.cursor()
-    cur.execute(f"SELECT * FROM user inner join userlogin where user.uid = {user_id}")
+    cur.execute(f"SELECT * FROM user,userlogin where user.uid = {user_id} and userlogin.uid = user.uid")
     user = cur.fetchone()
     cur.execute(f"SELECT subscriber_id FROM subscriber where author_id = {user_id}")
     subs = cur.fetchall()
@@ -276,8 +276,13 @@ def profile(user_id):
             sub_status = 2  # already subbed
         else:
             sub_status = 1
-    print(sub_status)
-    return render_template("user/profile.html", user=user, current_user=current_user, sub_status=sub_status)
+    cur.execute(f"SELECT * from blog where author_id = {user_id}")
+    all_blogs = cur.fetchall()
+
+    cur.execute(f"SELECT * from subscriber,user where subscriber_id = {user_id} and user.uid = subscriber.author_id")
+    subscribed = cur.fetchall()
+    return render_template("user/profile.html", user=user, current_user=current_user, sub_status=sub_status,
+                           all_blogs=all_blogs, subscribed=subscribed)
 
 
 @app.route('/user/<int:author_id>/subscribe/<int:subscriber_id>', methods=["GET"])
@@ -321,9 +326,14 @@ def del_notification(notif_id):
 @login_required
 def bookmarks():
     cur = mysql.connection.cursor()
-    cur.execute(f"SELECT * from blog,bookmark where uid_bk = {current_user.id} and blog_id = blog_id_bk")
+    cur.execute(
+        f"SELECT blog.*,bookmark.*,user.name from blog,bookmark,user where uid_bk = {current_user.id} and blog_id = blog_id_bk and blog.author_id = user.uid")
     bkms = cur.fetchall()
-    return render_template("user/bookmark.html", bkms=bkms)
+    cur.execute("SELECT * FROM blog,user WHERE blog.author_id = user.uid LIMIT 6")
+    suggest_blogs = cur.fetchall()
+    cur.execute(f"SELECT count(*) as cnt from bookmark where uid_bk = {current_user.id}")
+    count = cur.fetchone()
+    return render_template("user/bookmark.html", bkms=bkms, suggest_blogs=suggest_blogs, count=count["cnt"])
 
 
 @app.route('/bookmarks/add/<int:blog_id>')
