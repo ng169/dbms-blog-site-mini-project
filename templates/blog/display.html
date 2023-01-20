@@ -61,14 +61,48 @@
             </a>
             {% else %}
             {% if current_user.is_authenticated %}
-            <a href="{{url_for('add_comment',blog_id = blog.blog_id )}}">
-                <button class="btn btn-outline-primary mb-3">
+            <div>
+                <button class="btn btn-outline-primary mb-3" data-bs-toggle="modal" data-bs-target="#commentModal">
                     Add Comment <i class="fa-regular fa-plus"></i>
                 </button>
-            </a>
+            </div>
+
+            <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="commentModalLabel">Comment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{url_for('add_comment',blog_id=blog.blog_id)}}">
+                            <div class="modal-body">
+
+                                {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                {% for message in messages: %}
+                                <p class=flashes>
+                                    {{ message }}
+                                </p>
+                                {% endfor %}
+                                {% endif %}
+                                {% endwith %}
+                                {{ form.csrf_token }}
+                                {{ form.content.label(class="form-label")}} {{
+                                form.content(size=30,class="form-control") }}
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                {{ form.submit(type="submit",class="btn btn-primary") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <a href="{{url_for('home')}}">
                 <button class="btn btn-outline-primary mb-3">
-                    Back to home <i class="fa-sharp fa-solid fa-house"></i></i>
+                    Back to home <i class="fa-sharp fa-solid fa-house"></i>
                 </button>
             </a>
             {% endif %}

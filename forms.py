@@ -32,7 +32,7 @@ class CreateBlogForm(FlaskForm):
 
 
 class CreateCommentForm(FlaskForm):
-    content = StringField("Comment", validators=[DataRequired()])
+    content = StringField("Content of Comment", validators=[DataRequired()])
     submit = SubmitField("Submit Comment")
 
 

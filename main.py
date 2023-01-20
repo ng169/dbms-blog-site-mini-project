@@ -136,8 +136,9 @@ def blog(blog_id):
             bkm_status = 1
         else:
             bkm_status = 2
+    create_comment_form = CreateCommentForm()
     return render_template("blog/display.html", current_user=current_user, blog=blog_post, comments=comment_with_user,
-                           categories=categories, bkm_status=bkm_status)
+                           categories=categories, bkm_status=bkm_status, form = create_comment_form)
 
 
 @app.route('/blog/add', methods=["GET", "POST"])
@@ -207,7 +208,7 @@ def delete_blog(blog_id):
 
 
 # ---------------------------COMMENTS CRD ---------------------------
-@app.route('/blog/<int:blog_id>/comment/add', methods=["GET", "POST"])
+@app.route('/blog/<int:blog_id>/comment/add', methods=["POST"])
 def add_comment(blog_id):
     cur = mysql.connection.cursor()
     create_comment_form = CreateCommentForm()
@@ -218,7 +219,6 @@ def add_comment(blog_id):
             (content, blog_id, current_user.id))
         mysql.connection.commit()
         return redirect(url_for("blog", blog_id=blog_id))
-    return render_template("blog/add_comment.html", blog_id=blog_id, form=create_comment_form)
 
 
 @app.route('/blog/<int:blog_id>/comment/<int:comment_id>/delete', methods=["GET", "POST"])
