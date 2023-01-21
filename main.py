@@ -56,6 +56,14 @@ def _jinja2_filter_datetime(date, fmt=None):
     format = '%b %d, %Y'
     return native.strftime(format)
 
+@app.template_filter('notification_count')
+def _jinja2_filter_notification_count(user, fmt=None):
+    user_id = user.id
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT count(*) as c from notification where uid_notif = {user_id}")
+    count = cur.fetchone()
+    return count["c"]
+
 
 @app.route('/')
 def home():

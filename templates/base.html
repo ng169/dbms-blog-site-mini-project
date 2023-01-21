@@ -45,7 +45,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{url_for('register')}}">Register</a>
                 </li>
-                    {% else %}
+                {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{url_for('bookmarks')}}">Bookmarks</a>
                 </li>
@@ -59,7 +59,7 @@
             {% if current_user.is_authenticated %}
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item pe-3">
-                    <a class="nav-link" href="{{url_for('notification')}}">
+                    <a class="nav-link position-relative" href="{{url_for('notification')}}">
                         <script src="https://cdn.lordicon.com/fudrjiwc.js"></script>
                         <lord-icon
                                 src="https://cdn.lordicon.com/msetysan.json"
@@ -67,6 +67,12 @@
                                 colors="primary:#ffffff"
                                 style="width:2rem;height:2rem">
                         </lord-icon>
+                        {% if not current_user|notification_count == 0 %}
+                        <span class="position-absolute top-20 start-70 translate-middle badge rounded-pill bg-danger">
+                            {{current_user|notification_count}}
+                         <span class="visually-hidden">unread messages</span>
+                        </span>
+                        {% endif %}
                     </a>
                 </li>
                 <li class="nav-item">
