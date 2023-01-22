@@ -2,7 +2,9 @@
 {% block title %}Categories{% endblock %}
 
 {% block content %}
-<div class="container shadow mt-5">
+<div class="container shadow mt-5" style="min-height:80vh;">
+
+    <h2 class="p-5">All Categories</h2>
     <table class="table table-hover text-center">
         <thead>
         <tr>
@@ -15,7 +17,8 @@
         {% for category in categories %}
         <tr>
             <td>{{loop.index}}</td>
-            <td><a class="link-dark" href="{{url_for('view_category',cat_id =  category.category_id)}}">{{category.name}}</a></td>
+            <td><a class="link-dark" href="{{url_for('view_category',cat_id =  category.category_id)}}">{{category.name}}</a>
+            </td>
             <td>
                 <a href="{{url_for('delete_category',cat_id = category.category_id)}}">&#10006;</a>
             </td>
@@ -26,21 +29,40 @@
 </div>
 
 <div class="container mt-5">
-    <h2 class="mb-3">Add Category</h2>
-    <form method="POST" action="/categories">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages: %}
-        <p class=flashes>
-            {{ message }}
-        </p>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-        {{ form.csrf_token }}
-        {{ form.name.label(class="form-label") }} {{ form.name(size=30,class="form-control w-50") }}
-        {{ form.submit(type="submit",class="btn btn-dark mt-4") }}
-    </form>
+    {% if current_user.is_authenticated %}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Add Category
+    </button>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="/categories">
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                        {% for message in messages: %}
+                        <p class=flashes>
+                            {{ message }}
+                        </p>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                        {{ form.csrf_token }}
+                        {{ form.name.label(class="form-label") }} {{ form.name(size=30,class="form-control w-50") }}
+                        {{ form.submit(type="submit",class="btn btn-success mt-4 ") }}
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
 </div>
 
 

@@ -261,3 +261,4 @@ CREATE TABLE `blogsite`.`subscriber` (
     REFERENCES `blogsite`.`user` (`uid`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
+

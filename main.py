@@ -104,6 +104,7 @@ def register():
             prof_pic_name = file.filename
             file.save(os.path.join(app.root_path, 'static', 'images', file.filename))
         cur.execute("INSERT INTO user (name, ph_num, prof_pic) VALUES (%s, %s, %s)", (name, phnum, prof_pic_name))
+        mysql.connection.commit()
         cur.execute("INSERT INTO userlogin (email_id, password) VALUES (%s, %s)", (email, password))
         mysql.connection.commit()
         return redirect(url_for("login"))
@@ -123,7 +124,8 @@ def blog(blog_id):
     cur = mysql.connection.cursor()
     cur.execute(f"SELECT * FROM blog,user where blog_id = {blog_id} and blog.author_id=user.uid")
     blog_post = cur.fetchone()
-    cur.execute(f"SELECT * from comment,user WHERE blog_id_comment = {blog_id} and comment.uid_comment =user.uid ")
+    cur.execute(
+        f"SELECT * from comment,user WHERE blog_id_comment = {blog_id} and comment.uid_comment =user.uid order by date_added desc")
     comment_with_user = cur.fetchall()
     cur.execute(
         f"SELECT * FROM blog_category,category WHERE blog_id_cb = {blog_id} "
@@ -238,8 +240,9 @@ def delete_comment(blog_id, comment_id):
 def add_category():
     cur = mysql.connection.cursor()
     form = CreateCategoryForm()
-    if current_user.is_authenticated and form.validate_on_submit():
+    if current_user.is_authenticated and request.method == "POST":
         name = request.form.get("name")
+        print(name)
         cur.execute(f"INSERT INTO category (name) VALUES ('{name}')", )
         mysql.connection.commit()
     cur.execute("SELECT * FROM category")
