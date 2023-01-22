@@ -60,11 +60,14 @@ def home():
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM blog,user WHERE blog.author_id = user.uid ORDER BY date_modified DESC")
     blogs = cur.fetchall()
+    cur.execute("SELECT * FROM blog,user WHERE blog.author_id = user.uid ORDER BY num_of_bookmarks DESC LIMIT 6")
+    trending_blogs = cur.fetchall()
     user = None
     if current_user.is_authenticated:
         cur.execute(f"select * from user where uid = {current_user.id}")
         user = cur.fetchone()
-    return render_template("index.html", all_blogs=blogs, user=user, current_user=current_user)
+    return render_template("index.html", all_blogs=blogs, user=user, current_user=current_user,
+                           trending_blogs=trending_blogs)
 
 
 # ---------------------------AUTHENTICATION ---------------------------
@@ -244,6 +247,20 @@ def add_category():
     return render_template("category/add.html", form=form, categories=category_data)
 
 
+@app.route('/categories/view/<int:cat_id>', methods=["GET"])
+def view_category(cat_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT * FROM blog,user,blog_category "
+                f"WHERE blog.author_id = user.uid "
+                f"AND blog_category.cat_id_cb = {cat_id} "
+                f"AND blog.blog_id = blog_category.blog_id_cb "
+                f"ORDER BY date_modified DESC")
+    data = cur.fetchall()
+    cur.execute(f"SELECT name from category where category_id = {cat_id}")
+    cat_name = cur.fetchone()["name"]
+    return render_template("category/list.html", data=data, cat_name=cat_name)
+
+
 @app.route('/categories/delete/<int:cat_id>', methods=["GET"])
 def delete_category(cat_id):
     cur = mysql.connection.cursor()
@@ -362,9 +379,9 @@ def leaderboard():
     selection = 1
     if request.method == "POST":
         selection = request.form.get("selection")
-        if selection not in ['1','2','3']:
+        if selection not in ['1', '2', '3']:
             selection = 1
-    selection=int(selection)
+    selection = int(selection)
     cur.execute("SELECT * from user order by num_of_blogs DESC")
     most_blog_user = cur.fetchall()
     cur.execute("SELECT * from user order by num_of_subs DESC")

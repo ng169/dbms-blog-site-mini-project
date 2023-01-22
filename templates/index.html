@@ -44,10 +44,25 @@
 <div class="container">
     <div class="row">
         <div class="col-md-10 col-lg-8">
+            <h2 class="mb-5">Latest Blogs</h2>
             {% for blog in all_blogs %}
             <div class="post-preview"><a href="{{url_for('blog',blog_id=blog.blog_id)}}" class="link-dark">
-                <h2 class="post-title">{{blog.title}}</h2>
-                <h5 class="post-subtitle">{{blog.subtitle}}</h5>
+                <h3 class="post-title">{{blog.title}}</h3>
+                <h6 class="post-subtitle">{{blog.subtitle}}</h6>
+            </a>
+                <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=blog.author_id)}}"
+                                                       class="link-dark"><em>{{blog.name}}</em></a>
+                    on {{blog.date_added.strftime("%b %d, %Y")}}</p>
+            </div>
+            <hr>
+            {% endfor %}
+        </div>
+        <div class="col border-start">
+            <h2 class="mb-5">Trending Blogs</h2>
+            {% for blog in trending_blogs %}
+            <div class="post-preview"><a href="{{url_for('blog',blog_id=blog.blog_id)}}" class="link-dark">
+                <h3 class="post-title">{{blog.title}}</h3>
+                <h6 class="post-subtitle">{{blog.subtitle}}</h6>
             </a>
                 <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=blog.author_id)}}"
                                                        class="link-dark"><em>{{blog.name}}</em></a>
@@ -67,6 +82,7 @@ var typed = new Typed(".auto-type",{
     typeSpeed:150,
     onComplete: function(self) { self.cursor.remove() }
 })
+
 
 
 

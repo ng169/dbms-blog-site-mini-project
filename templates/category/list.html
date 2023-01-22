@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{cat_name}} Blogs{% endblock %}
+
+{% block content %}
+<div class="container shadow mt-5 p-3" style="min-height:90vh;">
+    <h2 class="text-center mb-3">Blogs on {{cat_name}}</h2>
+    <hr>
+    <div class="row mt-4">
+        {% for blog in data %}
+        {% if loop.index % 2 == 0 %}
+        <div class="col-6 border-start">
+            {% else %}
+            <div class="col-6">
+                {% endif %}
+                <div class="post-preview"><a href="{{url_for('blog',blog_id=blog.blog_id)}}" class="link-dark">
+                    <h3 class="post-title">{{blog.title}}</h3>
+                    <h6 class="post-subtitle">{{blog.subtitle}}</h6>
+                </a>
+                    <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=blog.author_id)}}"
+                                                           class="link-dark"><em>{{blog.name}}</em></a>
+                        on {{blog.date_added.strftime("%b %d, %Y")}}</p>
+                </div>
+                <hr>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
