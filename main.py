@@ -1,6 +1,5 @@
 import os
 
-from dateutil import parser
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_ckeditor import CKEditor
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
@@ -29,8 +28,6 @@ login_manager.init_app(app)
 
 ckeditor = CKEditor(app)
 
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
-
 
 # create a user model
 class User(UserMixin):
@@ -49,13 +46,6 @@ def load_user(user_id):
     return None
 
 
-@app.template_filter('strftime')
-def _jinja2_filter_datetime(date, fmt=None):
-    date = parser.parse(date)
-    native = date.replace(tzinfo=None)
-    format = '%b %d, %Y'
-    return native.strftime(format)
-
 @app.template_filter('notification_count')
 def _jinja2_filter_notification_count(user, fmt=None):
     user_id = user.id
@@ -68,7 +58,7 @@ def _jinja2_filter_notification_count(user, fmt=None):
 @app.route('/')
 def home():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM blog,user WHERE blog.author_id = user.uid")
+    cur.execute("SELECT * FROM blog,user WHERE blog.author_id = user.uid ORDER BY date_modified DESC")
     blogs = cur.fetchall()
     user = None
     if current_user.is_authenticated:
@@ -92,7 +82,7 @@ def login():
             login_user(user_obj)
             return redirect(url_for("home"))
         else:
-            flash("Wrong password")
+            flash("Wrong credentials")
     return render_template("auth/login.html", form=login_form)
 
 
@@ -146,7 +136,7 @@ def blog(blog_id):
             bkm_status = 2
     create_comment_form = CreateCommentForm()
     return render_template("blog/display.html", current_user=current_user, blog=blog_post, comments=comment_with_user,
-                           categories=categories, bkm_status=bkm_status, form = create_comment_form)
+                           categories=categories, bkm_status=bkm_status, form=create_comment_form)
 
 
 @app.route('/blog/add', methods=["GET", "POST"])
@@ -154,26 +144,29 @@ def blog(blog_id):
 def add_blog():
     create_blog_form = CreateBlogForm()
     cur = mysql.connection.cursor()
-    cur.execute(
-        "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'blogsite' AND TABLE_NAME = 'blog'")
-    blog_id = cur.fetchone()['AUTO_INCREMENT']
     if request.method == "POST":
         title = request.form.get("title")
         subtitle = request.form.get("subtitle")
         content = request.form.get("ckeditor")
         user_id = current_user.id
-        cur.execute("INSERT INTO blog (title,subtitle,content,author_id) VALUES (%s, %s,%s,%s)",
-                    (title, subtitle, content, user_id))
-        mysql.connection.commit()
-        add_blog_category(blog_id, cur)
-        mysql.connection.commit()
-        send_notification(user_id, title, cur)
-        mysql.connection.commit()
-        return redirect(url_for("home"))
+        if title and subtitle and content:
+            cur.execute("INSERT INTO blog (title,subtitle,content,author_id) VALUES (%s, %s,%s,%s)",
+                        (title, subtitle, content, user_id))
+            mysql.connection.commit()
+            cur.execute("SELECT LAST_INSERT_ID();")
+            blog_id = cur.fetchone()['LAST_INSERT_ID()']
+            add_blog_category(blog_id, cur)
+            mysql.connection.commit()
+            send_notification(user_id, title, blog_id, cur)
+            mysql.connection.commit()
+            return redirect(url_for("home"))
+        else:
+            flash("Enter content for blog.")
+            return redirect(url_for('add_blog'))
 
     cur.execute("SELECT * FROM category")
     category_data = cur.fetchall()
-    return render_template("blog/add.html", form=create_blog_form, blog_id=blog_id,
+    return render_template("blog/add.html", form=create_blog_form,
                            categories=category_data)
 
 
@@ -226,7 +219,7 @@ def add_comment(blog_id):
             "INSERT INTO `blogsite`.`comment` (`content`, `blog_id_comment`, `uid_comment`) VALUES (%s, %s, %s)",
             (content, blog_id, current_user.id))
         mysql.connection.commit()
-        return redirect(url_for("blog", blog_id=blog_id))
+    return redirect(url_for("blog", blog_id=blog_id))
 
 
 @app.route('/blog/<int:blog_id>/comment/<int:comment_id>/delete', methods=["GET", "POST"])
@@ -360,6 +353,26 @@ def del_bookmarks(blog_id):
     cur.execute(f"DELETE from bookmark where blog_id_bk = {blog_id} and uid_bk = {current_user.id}")
     mysql.connection.commit()
     return redirect(url_for('blog', blog_id=blog_id))
+
+
+# -------------------------LEADERBOARD -------------------------
+@app.route('/leaderboard', methods=["GET", "POST"])
+def leaderboard():
+    cur = mysql.connection.cursor()
+    selection = 1
+    if request.method == "POST":
+        selection = request.form.get("selection")
+        if selection not in ['1','2','3']:
+            selection = 1
+    selection=int(selection)
+    cur.execute("SELECT * from user order by num_of_blogs DESC")
+    most_blog_user = cur.fetchall()
+    cur.execute("SELECT * from user order by num_of_subs DESC")
+    most_sub_user = cur.fetchall()
+    cur.execute("SELECT * FROM blog,user WHERE blog.author_id = user.uid ORDER BY num_of_bookmarks DESC")
+    most_bookmark_blog = cur.fetchall()
+    return render_template("user/leaderboard.html", selection=selection, most_blog_user=most_blog_user,
+                           most_sub_user=most_sub_user, most_bookmark_blog=most_bookmark_blog)
 
 
 if __name__ == "__main__":

@@ -54,7 +54,7 @@
                 <h5 class="post-subtitle">{{blog.subtitle}}</h5>
                 <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=blog.author_id)}}"
                                                        class="link-dark"><em>{{user.name}}</em></a>
-                    on {{blog.date_added|strftime}}</p>
+                    on {{blog.date_added.strftime("%b %d, %Y")}}</p>
             </div>
             <hr>
             {% endfor %}

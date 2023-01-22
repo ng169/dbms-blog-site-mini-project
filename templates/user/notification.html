@@ -2,15 +2,37 @@
 {% block title %}Notification{% endblock %}
 
 {% block content %}
-<h1>Notifications</h1>
+<div class="container shadow-sm mt-5" style="height: 90vh;">
+    <h1 class="text-center">Notifications</h1>
 
-{% if notifications|length == 0 %}
-<p>No new notifications</p>
-{% else %}
-{% for notif in notifications %}
-<p>{{notif.title}}</p>
-<p>{{notif.description}}</p>
-<a href="{{url_for('del_notification',notif_id=notif.notif_id)}}">Delete</a>
-{% endfor %}
-{% endif %}
+    {% if notifications|length == 0 %}
+    <strong class="m-3">No new notifications</strong>
+    <h5 class="m-3">Recommendations:</h5>
+
+    {% else %}
+    <div class="mt-5">
+        {% for notif in notifications %}
+        <div class="alert alert-info" role="alert">
+            <div class="row">
+                <div class="col-6">
+                    <strong>{{notif.title}}</strong>
+                    <p>{{notif.description}}</p>
+                </div>
+                <div class="col-6 text-center d-flex flex-column">
+                    <a href="{{url_for('blog',blog_id = notif.blog_id)}}">
+                        <button class="btn btn-primary mb-3">
+                            Read Now
+                        </button>
+                    </a>
+                    <a href="{{url_for('del_notification',notif_id=notif.notif_id)}}">
+                        <button class="btn btn-danger">Delete</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

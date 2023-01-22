@@ -9,9 +9,10 @@
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages: %}
-        <p class=flashes>
-            {{ message }}
-        </p>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Warning!</strong> {{message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         {% endfor %}
         {% endif %}
         {% endwith %}
@@ -31,9 +32,11 @@
             {{ ckeditor.load() }}
             {{ ckeditor.config(name='body') }}
             {{ ckeditor.create() }}
+
         </div>
 
         {{ form.submit(type="submit",class="btn btn-primary mt-3 mb-3") }}
+
     </form>
 </div>
 

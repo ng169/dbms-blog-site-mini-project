@@ -19,7 +19,7 @@
                 <h5 class="post-subtitle">{{s.subtitle}}</h5>
                 <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=s.author_id)}}"
                                                        class="link-dark"><em>{{s.name}}</em></a>
-                    on {{s.date_added|strftime}}</p>
+                    on {{s.date_added.strftime("%b %d, %Y")}}</p>
             </div>
             <hr>
         </div>
@@ -37,7 +37,7 @@
                 <h5 class="post-subtitle">{{bkm.subtitle}}</h5>
                 <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=bkm.author_id)}}"
                                                        class="link-dark"><em>{{bkm.name}}</em></a>
-                    on {{bkm.date_added|strftime}}</p>
+                    on {{bkm.date_added.strftime("%b %d, %Y")}}</p>
             </div>
             <hr>
             {% endfor %}

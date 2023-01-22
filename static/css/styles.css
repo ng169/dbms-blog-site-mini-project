@@ -87,3 +87,9 @@ a {
   border: 1.5px solid black;
   object-fit: cover;
 }
+
+/* Flash messages */
+
+.flashes{
+    color:red;
+}

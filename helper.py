@@ -1,5 +1,7 @@
 from flask import request
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
 
 def add_blog_category(blog_id, cur):
     category_list = request.form.getlist("categories")
@@ -7,7 +9,7 @@ def add_blog_category(blog_id, cur):
         cur.execute("INSERT INTO blog_category VALUES (%s,%s)", (blog_id, int(category_id)))
 
 
-def send_notification(author_id, blog_title, cur):
+def send_notification(author_id, blog_title, blog_id, cur):
     cur.execute(f"SELECT name from user where uid = {author_id}")
     author_name = cur.fetchone()
     author_name = author_name['name']
@@ -17,9 +19,9 @@ def send_notification(author_id, blog_title, cur):
     notif_title = f"NEW BLOG FROM {author_name}"
     notif_description = f"{author_name} has posted a blog on {blog_title}"
     for sub_id in subs_id:
-        cur.execute(f"INSERT into notification(title,description,uid_notif) VALUES ('{notif_title}','{notif_description}',{sub_id})")
+        cur.execute(
+            f"INSERT into notification(title,description,uid_notif,blog_id) VALUES ('{notif_title}','{notif_description}',{sub_id},{blog_id})")
 
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

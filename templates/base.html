@@ -38,6 +38,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{url_for('add_category')}}">Categories</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('leaderboard')}}">Leaderboard</a>
+                </li>
                 {% if not current_user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{url_for('login')}}">Login</a>
