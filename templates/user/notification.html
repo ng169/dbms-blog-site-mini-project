@@ -2,13 +2,11 @@
 {% block title %}Notification{% endblock %}
 
 {% block content %}
-<div class="container shadow-sm mt-5" style="height: 90vh;">
+<div class="container shadow-sm mt-5" style="min-height:80vh;">
     <h1 class="text-center">Notifications</h1>
 
     {% if notifications|length == 0 %}
     <strong class="m-3">No new notifications</strong>
-    <h5 class="m-3">Recommendations:</h5>
-
     {% else %}
     <div class="mt-5">
         {% for notif in notifications %}

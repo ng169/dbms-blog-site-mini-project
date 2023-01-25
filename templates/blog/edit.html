@@ -2,7 +2,7 @@
 {% block title %}Add blog{% endblock %}
 
 {% block content %}
-<div class="container shadow mt-5 p-5">
+<div class="container shadow mt-5 p-5" style="min-height:80vh;">
     <h2 class="text-center">Editing : {{blog.title}}</h2>
     <hr>
     <form action="/blog/edit/{{blog.blog_id}}" method="POST">
