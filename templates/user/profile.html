@@ -49,9 +49,9 @@
             {% for blog in all_blogs %}
             <div class="post-preview">
                 <a href="{{url_for('blog',blog_id=blog.blog_id)}}" class="link-dark">
-                    <h2 class="post-title">{{blog.title}}</h2>
+                    <h3 class="post-title">{{blog.title}}</h3>
                 </a>
-                <h5 class="post-subtitle">{{blog.subtitle}}</h5>
+                <h6 class="post-subtitle">{{blog.subtitle}}</h6>
                 <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=blog.author_id)}}"
                                                        class="link-dark"><em>{{user.name}}</em></a>
                     on {{blog.date_added.strftime("%b %d, %Y")}}</p>

@@ -2,21 +2,21 @@
 {% block title %}Bookmarks{% endblock %}
 
 {% block content %}
-<div class="container shadow mt-4" style="min-height:80vh;">
-    <h1 class="text-center">Bookmarks</h1>
+<div class="container shadow mt-5 p-0" style="min-height:80vh;">
+    <h1 class="text-center bg-dark text-light">Bookmarks</h1>
 
     {% if bkms|length == 0 %}
-    <h5>No Bookmarks</h5>
-    <h5 class="mb-3">Suggestions:</h5>
-    <div class="row">
+    <h5 class="ms-2 mt-3 text-danger">No Bookmarks</h5>
+    <h5 class="mb-3 ms-2">Suggestions:</h5>
+    <div class="row ms-1">
 
         {% for s in suggest_blogs %}
         <div class="col-6">
             <div class="post-preview">
                 <a href="{{url_for('blog',blog_id=s.blog_id)}}" class="link-dark">
-                    <h2 class="post-title">{{s.title}}</h2>
+                    <h3 class="post-title">{{s.title}}</h3>
                 </a>
-                <h5 class="post-subtitle">{{s.subtitle}}</h5>
+                <h6 class="post-subtitle">{{s.subtitle}}</h6>
                 <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=s.author_id)}}"
                                                        class="link-dark"><em>{{s.name}}</em></a>
                     on {{s.date_added.strftime("%b %d, %Y")}}</p>
@@ -27,14 +27,14 @@
     </div>
 
     {% else %}
-    <div class="row mt-5 p-5">
+    <div class="row p-5">
         <div class="col-7">
             {% for bkm in bkms %}
             <div class="post-preview">
                 <a href="{{url_for('blog',blog_id=bkm.blog_id)}}" class="link-dark">
-                    <h2 class="post-title">{{bkm.title}}</h2>
+                    <h3 class="post-title">{{bkm.title}}</h3>
                 </a>
-                <h5 class="post-subtitle">{{bkm.subtitle}}</h5>
+                <h6 class="post-subtitle">{{bkm.subtitle}}</h6>
                 <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=bkm.author_id)}}"
                                                        class="link-dark"><em>{{bkm.name}}</em></a>
                     on {{bkm.date_added.strftime("%b %d, %Y")}}</p>

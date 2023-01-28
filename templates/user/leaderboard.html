@@ -2,9 +2,9 @@
 {% block title %}Leaderboard{% endblock %}
 
 {% block content %}
-<div class="container shadow mt-5" style="min-height:80vh;">
-    <h2 class="text-center pt-3">Leaderboard</h2>
-    <form method="post" action="{{url_for('leaderboard')}}" class="mt-4">
+<div class="container mt-5 shadow p-0" style="min-height:80vh;">
+    <h2 class="mt-3 p-2 bg-dark text-light text-center">Leaderboard</h2>
+    <form method="post" action="{{url_for('leaderboard')}}" class="mt-4 ms-3">
         <div class="row">
             <div class="col">
                 <label for="selectMenu">Sort By:</label>
@@ -19,18 +19,17 @@
                 <button type="submit" class="btn btn-warning mt-4 mb-5">View</button>
             </div>
         </div>
-
     </form>
     {% if selection == 1%}
     <h4 class="text-center mb-5">Most Active Users</h4>
     <div class="row text-center">
-        <div class="col-3"><strong>#</strong></div>
+        <div class="col-3"><strong>Rank</strong></div>
         <div class="col"><strong>User</strong></div>
         <div class="col-3"><strong>Number of Blogs</strong></div>
     </div>
     <hr>
     {% for user in most_blog_user %}
-    <div class="row text-center">
+    <div class="row text-center mt-3">
         <div class="col-3"><strong>{{loop.index}}</strong></div>
         <div class="col"><strong><a class="link-dark"
                                     href="{{url_for('profile',user_id = user.uid)}}">{{user.name}}</a></strong>
@@ -41,13 +40,13 @@
     {% elif selection == 2 %}
     <h4 class="text-center mb-5">Most Subscribed Users</h4>
     <div class="row text-center">
-        <div class="col-3"><strong>#</strong></div>
+        <div class="col-3"><strong>Rank</strong></div>
         <div class="col"><strong>User</strong></div>
         <div class="col-3"><strong>Number of Subscribers</strong></div>
     </div>
     <hr>
     {% for user in most_sub_user %}
-    <div class="row text-center">
+    <div class="row text-center mt-3">
         <div class="col-3"><strong>{{loop.index}}</strong></div>
         <div class="col"><strong><a class="link-dark"
                                     href="{{url_for('profile',user_id = user.uid)}}">{{user.name}}</a></strong>
@@ -56,9 +55,9 @@
     </div>
     {% endfor %}
     {% elif selection == 3 %}
-    <h4 class="text-center mb-5">Trending Blogs</h4>
+    <h2 class="text-center mb-5">Trending Blogs</h2>
     <div class="row text-center">
-        <div class="col-3"><strong>#</strong></div>
+        <div class="col-3"><strong>Rank</strong></div>
         <div class="col"><strong>Blog</strong></div>
         <div class="col-3"><strong>Number of bookmarks</strong></div>
     </div>
@@ -68,7 +67,7 @@
         <div class="col-3"><strong>{{loop.index}}</strong></div>
         <div class="col">
             <a href="{{url_for('blog',blog_id=blog.blog_id)}}" class="link-dark">
-                <h2 class="post-title">{{blog.title}}</h2>
+                <h3 class="post-title">{{blog.title}}</h3>
             </a>
             <p class="post-meta">Posted by&nbsp;<a href="{{url_for('profile',user_id=blog.author_id)}}"
                                                    class="link-dark"><em>{{blog.name}}</em></a>

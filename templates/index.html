@@ -44,7 +44,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-10 col-lg-8">
-            <h2 class="mb-5">Latest Blogs</h2>
+            <h2 class="mb-5 bg-dark text-light text-center">Latest Blogs</h2>
             {% for blog in all_blogs %}
             <div class="post-preview"><a href="{{url_for('blog',blog_id=blog.blog_id)}}" class="link-dark">
                 <h3 class="post-title">{{blog.title}}</h3>
@@ -58,7 +58,7 @@
             {% endfor %}
         </div>
         <div class="col border-start">
-            <h2 class="mb-5">Trending Blogs</h2>
+            <h2 class="mb-5 bg-dark text-light text-center">Trending Blogs</h2>
             {% for blog in trending_blogs %}
             <div class="post-preview"><a href="{{url_for('blog',blog_id=blog.blog_id)}}" class="link-dark">
                 <h3 class="post-title">{{blog.title}}</h3>
